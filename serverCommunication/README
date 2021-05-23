@@ -1,0 +1,108 @@
+Kacper Murdzek - km1299
+Taranvir Singh - ts903
+
+The Program
+	The server opens when running ./server followed by a port number. If the port number is in use, it will not be able to bind, this would be the case if the server had just finished executing on a port as it would take a minute for the port to re-open or if someone else is using the port. Once the server is open it is capable of handling multiple clients that can send GET, SET, or DEL requests and the server will maintain a binary tree of all valid keys and values. For every request the command, it must be all capital, and it must be followed by an integer that specifies the length of the input including new line characters and then the input itself. For the SET command the key and the value must be separated by a new line and the length of the input must include the newline. User input is read byte by byte and analyzed after the full input has been read, error messages will be sent to the client and connection will be closed if the input is incorrect in any way. Empty keys will not be put into the binary tree, but keys with empty values will be stored. The client that sends the request is granted exclusive access to the binary tree using pthread locks so there will be no malformed entries when two clients try to access the tree at the same time. The connection with the server can be closed with ctrl + c. The connection to the server will also be closed with incorrect input format.
+
+Testing
+	Began by testing malformed commands, such as SETT, seT, GETTT, Ge, DeL, DELL, del,  all of which close the connection and print “ERR\nBAD\n” to the client. 
+
+	Next tested incorrect input lengths, used cases were, 
+SET	SET	SET	GET	GET	DEL	DEL
+4	0	5	3	4	2	-1
+As	a	a	aaaaa	a	sa	a
+A		a
+All cases return “ERR\nLEN\n”
+
+To test our SET method we would insert elements in a random order and do the inorder traversal of the binary tree to ensure that the elements were ordered and inserted properly and that their key and value matched what we inputted. To test our GET method we would start by trying to get elements that were not in the tree which the client printed KNF to. Then we attempted to get elements that have the same letters but not the same capitalization which would show that the input is case sensitive and would only work if the key was a direct match. Then we used the get elements on elements in the tree which all returned successfully. To test the DEL method we used the same tests as the GET method to make sure every element was getting reached, on top of that we tested deleting the root of the binary tree until empty, deleting nodes from a left heavy tree and a right heavy tree, deleting nodes with no left child or no right child, and deleting node with no children. All tests were successful and the tree remained in lexicographic order and through every test. We tested using multiple clients to ensure access to the tree was exclusive and that each client was working with the same tree. Below is one of the inputs we used to test SET, DEL and GET.
+
+
+SET
+4
+G
+A
+
+SET
+4
+C
+A
+
+SET
+4
+B
+A
+
+SET
+4
+A
+A
+SET
+4
+E
+A
+
+SET
+4
+D
+A
+
+SET
+4
+O
+A
+
+SET
+4
+J
+A
+
+SET
+4
+I
+A
+
+SET
+4
+K
+A
+
+SET
+4
+S
+A
+
+SET
+4
+R
+A
+
+GET
+2
+R
+
+GET
+2
+S
+
+GET
+4
+R
+ERROR
+
+GET
+100
+R
+ERROR
+
+SET
+4
+HELLO
+ERROR
+
+DEL
+S
+ERROR
+
+DEL
+2
+S
